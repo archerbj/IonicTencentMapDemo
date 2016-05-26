@@ -1,0 +1,13 @@
+/* Empty. Add your own CSS if you like */
+
+html,
+body {
+    height: 100%;
+    margin: 0px;
+    padding: 0px
+}
+
+#container {
+    width: 100%;
+    height: 100%
+}
