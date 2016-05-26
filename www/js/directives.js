@@ -23,20 +23,22 @@ angular.module('starter.directives', [])
 
         Notification.show('加载中...');
         $timeout(function() {
-            var location = {
-                lat: 39.916527,
-                lng: 116.397128
-            }
             Notification('hide');
-            if (location && location.lat) {
-                _init_map(location);
+            if (scope.center && scope.center.lat) {
+                _init_map(scope.center);
                 return;
+            } else {
+                throw new Error('define center object for qq-map !!!')
             }
 
         }, 2000);
     }
 
     function init_map(scope, element, attrs, location) {
+        /**
+         * Render Map and Center it.
+         * @type {[type]}
+         */
         var $wrap = element.parent().parent();
         var $element = angular.element(element);
         var container = $element.get(0);
@@ -53,12 +55,6 @@ angular.module('starter.directives', [])
             zoom: 13,
             zoomControl: true,
             mapTypeControl: false
-        });
-
-        var circle = new qq.maps.Circle({
-            map: map,
-            center: center,
-            radius: 3000
         });
 
         qq.maps.event.addListener(map, 'center_changed', center_changed);
@@ -85,7 +81,6 @@ angular.module('starter.directives', [])
                     location.lng = result.detail.location.lng;
 
                     var newCenter = new qq.maps.LatLng(location.lat, location.lng);
-                    circle.setCenter(newCenter);
                 })
             }
         });
@@ -102,12 +97,50 @@ angular.module('starter.directives', [])
             map.panTo(center);
         });
 
+        /**
+         * Add a marker for the Center
+         */
+        var marker = new qq.maps.Marker({ map: map });
+        var position = new qq.maps.LatLng(scope.center.lat, scope.center.lng);
+        marker.setPosition(position);
+        var anchor = new qq.maps.Point(0, 36),
+            size = new qq.maps.Size(36, 36),
+            origin = new qq.maps.Point(0, 0),
+            markerIcon = new qq.maps.MarkerImage("/img/map/4.png", size, origin, anchor);
+        marker.setIcon(markerIcon);
+        marker.setTitle("Marker Title");
+
+        // qq.maps.event.addListener(marker, 'click', function() {
+        //     var title = 'title';
+        //     // var content = '<img src="' + cfg.server + topics[n].goods_pics[0] + '" />';
+        //     var content = '';
+        //     // content += '<h3>';
+
+        //     content += '<span class="assertive float-right">现价：￥ ' + 'bar' + '</span>&nbsp;';
+        //     // content += '</h3>';
+
+        //     var confirmPopup = $ionicPopup.confirm({
+        //         title: title,
+        //         cancelText: 'X 关闭',
+        //         cancelType: 'button-positive',
+        //         okText: '前往查看 >',
+        //         okType: 'button-royal',
+        //         template: content
+        //     });
+
+        //     confirmPopup.then(function(res) {
+        //         if (res) {
+        //             console.log('closed.')
+        //         }
+        //     });
+        // });
     }
 
     return {
         scope: {
-            state: '=',
-            topics: "=*"
+            center: '=',
+            markers: "=",
+            circles: '='
         },
         link: link
     };
